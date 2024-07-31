@@ -191,8 +191,9 @@ def placeTrades(topFive):
                                 retention='DAY', remarks='my_order_etf')
         print(order)
         print("Inserting to DB")
-        # insert_buy_order(symbol, ltp, qty)
-        # main()
+        print(api.get)
+        insert_buy_order(symbol, ltp, qty)
+        main()
     return True
 
 
