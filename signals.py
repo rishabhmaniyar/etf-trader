@@ -278,6 +278,9 @@ def squareOffHoldingsBreachingCutoff(cutOff):
                                         exchange='NSE', tradingsymbol=tsym,
                                         quantity=quantity, discloseqty=0, price_type='MKT', price=0.0,
                                         retention='DAY', remarks='my_squareOff_etf')
+                print(order)
+            else:
+                print("None to squareOff today !!")
 
 
 if __name__ == "__main__":
