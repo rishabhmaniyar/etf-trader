@@ -230,7 +230,6 @@ def addTwentyDmaData(df):
 
         to_date_str = to_date.strftime("%d-%m-%Y")
         from_date_str = from_date.strftime("%d-%m-%Y")
-
         histBaseUrl = "https://www.nseindia.com/api/historical/cm/equity?symbol="
         histContinueUrl = f"&from={from_date_str}&to={to_date_str}"
         finalUrl = histBaseUrl + symbol + histContinueUrl
@@ -262,6 +261,25 @@ def addTwentyDmaData(df):
     return df
 
 
+def squareOffHoldingsBreachingCutoff(cutOff):
+    api = user_list[0]
+    holdings = api.get_holdings()
+    for holding in holdings:
+        quantity = float(holding['holdqty'])
+        if quantity > 0.0:
+            buyAveragePrice = float(holding['upldprc'])
+            filteredExchangeSymbol = holding['exch_tsym'][0]
+            tsym = filteredExchangeSymbol['tsym']
+            ltp = float(api.get_quotes(exchange=filteredExchangeSymbol['exch'], token=filteredExchangeSymbol['token'])['lp'])
+            returns = (ltp - buyAveragePrice) / buyAveragePrice
+            if returns >= cutOff / 100:
+                print("Selling for ", tsym, "returns :- ", returns, "Qty :- ", quantity)
+                order = api.place_order(buy_or_sell='S', product_type='C',
+                                        exchange='NSE', tradingsymbol=tsym,
+                                        quantity=quantity, discloseqty=0, price_type='MKT', price=0.0,
+                                        retention='DAY', remarks='my_squareOff_etf')
+
+
 if __name__ == "__main__":
     print("Init -- Logging in users ")
     investmentAmount = 500
@@ -282,6 +300,7 @@ if __name__ == "__main__":
 
     # result = pd.read_csv('nse-etf.csv')
     placeTrades(result.head(1))
+    squareOffHoldingsBreachingCutoff(5)
     # filteredEtfs=pd.read_csv("final_returns-etf.csv")
     # performingEtfs = getPerformingEtfs(filteredEtfs)
     # loadScripMaster()
