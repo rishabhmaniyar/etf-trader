@@ -190,10 +190,10 @@ def placeTrades(topFive):
                                 quantity=qty, discloseqty=0, price_type='MKT', price=0.0,
                                 retention='DAY', remarks='my_order_etf')
         print(order)
-        print("Inserting to DB")
-        print(api.get)
-        insert_buy_order(symbol, ltp, qty)
-        main()
+        print("Skipping Inserting to DB")
+        # print(api.get)
+        # insert_buy_order(symbol, ltp, qty)
+        # main()
     return True
 
 
@@ -262,6 +262,7 @@ def addTwentyDmaData(df):
 
 
 def squareOffHoldingsBreachingCutoff(cutOff):
+    print("squareOffHoldingsBreachingCutoff", cutOff)
     api = user_list[0]
     holdings = api.get_holdings()
     for holding in holdings:
@@ -280,7 +281,7 @@ def squareOffHoldingsBreachingCutoff(cutOff):
                                         retention='DAY', remarks='my_squareOff_etf')
                 print(order)
             else:
-                print("None to squareOff today !!")
+                print("Not Squaring off ",tsym)
 
 
 if __name__ == "__main__":
@@ -302,7 +303,11 @@ if __name__ == "__main__":
     result = findTradableEtf(newDf)
 
     # result = pd.read_csv('nse-etf.csv')
-    placeTrades(result.head(1))
+    try:
+        placeTrades(result.head(1))
+    except Exception as ex:
+        print("Error while placing order",ex)
+    print("Executed placeTrades ; Now squareOffHoldingsBreachingCutoff ")
     squareOffHoldingsBreachingCutoff(5)
     # filteredEtfs=pd.read_csv("final_returns-etf.csv")
     # performingEtfs = getPerformingEtfs(filteredEtfs)
